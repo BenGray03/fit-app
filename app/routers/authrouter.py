@@ -14,12 +14,10 @@ authRouter = APIRouter(prefix="/auth", tags=["auth"])
 #Might have to make sure that it is secure to sql injection
 @authRouter.post(
     "/login/",
-    response_model=schemas.UserOut,
     status_code=status.HTTP_200_OK,
-    summary="Login as user"
+    summary="Login as user, returns a JWT Token"
 )
 def login(username: str, password: str, ip_as_str: str, db:Session = Depends(get_db)):
-
     try:
         ip = ip_address(ip_as_str)
     except ValueError:
@@ -32,8 +30,8 @@ def login(username: str, password: str, ip_as_str: str, db:Session = Depends(get
         )
     user = crud.authenticate_user(db=db, username=username, password=password)
     if user:
-        user_out = schemas.UserOut(username=user.username, id=user.id)
-        return user_out
+        access_token = utils.create_access_token({"sub": str(user.id)})
+        return {"access_token": access_token, "token_type": "bearer"}
     else:
         utils.add_attempt(ip)
         raise HTTPException(
@@ -64,18 +62,3 @@ def signup(user: schemas.UserCreate, db:Session = Depends(get_db)):
     
     return db_user
 
-@authRouter.post(
-    "/token/",
-    status_code=status.HTTP_200_OK,
-    summary="Get JWT token"
-)
-def obtain_token(form: OAuth2PasswordRequestForm = Depends(), db:Session=Depends(get_db)):
-    user = crud.authenticate_user(db=db, username=form.username, password=form.password)
-    if user is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                            detail="Incorrect login details.",
-                            headers={"WWW-Authenticate": "Bearer"}
-                            )
-    access_token = utils.create_access_token({"sub": str(user.id)})
-
-    return {"access_token": access_token, "token_type": "bearer"}
