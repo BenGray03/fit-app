@@ -29,15 +29,15 @@ def login(login_data: OAuth2PasswordRequestForm = Depends(), ip_as_str: str="", 
             detail="Too many attempts in the last 15 minutes! Please try again later."
         )
     user = crud.authenticate_user(db=db, username=login_data.username, password=login_data.password)
-    if user:
-        access_token = utils.create_access_token({"sub": str(user.id)})
-        return {"access_token": access_token, "token_type": "bearer"}
-    else:
+    if not user:
         utils.add_attempt(ip)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invlaid login information"
         )
+    #successful user login
+    access_token = utils.create_access_token({"sub": str(user.id)})
+    return {"access_token": access_token, "token_type": "bearer"}
     
 @authRouter.post(
     "/signup/",
