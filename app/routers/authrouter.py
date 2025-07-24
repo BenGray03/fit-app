@@ -1,38 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-from . import crud, schemas, utils
-from .database import get_db
-from ipaddress import ip_address, IPv4Address
+from fastapi import APIRouter
+from app import crud, schemas, utils
+from ..database import get_db
+from ipaddress import ip_address
 
-router = APIRouter(prefix="")
+
+
 authRouter = APIRouter(prefix="/auth", tags=["auth"]) 
-
-@router.post(
-    "/signup/",
-    response_model=schemas.User,
-    status_code=status.HTTP_201_CREATED,
-    summary="Create new user."
-)
-def signup(user: schemas.UserCreate, db:Session = Depends(get_db)):
-    existing = crud.get_user_from_username(db=db, username=user.username)
-    if existing:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="User already exists"
-        )
-    try:
-        db_user = crud.create_user(db, user)
-    except IntegrityError:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Username already registered"
-        )
-    
-    return db_user
-
-
 
 #Might have to make sure that it is secure to sql injection
 @authRouter.post(
@@ -63,8 +39,7 @@ def login(username: str, password: str, ip_as_str: str, db:Session = Depends(get
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invlaid login information"
         )
-       
-
+    
 @authRouter.post(
     "/token/",
     status_code=status.HTTP_200_OK,
@@ -80,4 +55,3 @@ def obtain_token(form: OAuth2PasswordRequestForm = Depends(), db:Session=Depends
     access_token = utils.create_access_token({"sub": str(user.id)})
 
     return {"access_token": access_token, "token_type": "bearer"}
-
