@@ -79,13 +79,11 @@ class Bodyweight(BodyweightBase):
         from_attributes = True
 
 class Attempt:
-    def __init__(self, ip):
-        ip: ipaddress
-        no_attempts = 1
-        first_attempt =datetime.now()
-    
+    def __init__(self, ip: str):
+        self.ip: ipaddress.IPv4Address = ipaddress.ip_address(ip)
+        self.no_attempts: int = 1
+        self.first_attempt: datetime = datetime.now()
+
     def is_blocked(self) -> bool:
-        if self.no_attempts >= 10:
-            return True
-        else:
-            return False
+        return self.no_attempts >= 10
+
