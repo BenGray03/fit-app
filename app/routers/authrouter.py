@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 from fastapi import APIRouter
 from app import crud, schemas, utils
 from ..database import get_db
@@ -40,6 +41,29 @@ def login(username: str, password: str, ip_as_str: str, db:Session = Depends(get
             detail="Invlaid login information"
         )
     
+@authRouter.post(
+    "/signup/",
+    response_model=schemas.User,
+    status_code=status.HTTP_201_CREATED,
+    summary="Create new user."
+)
+def signup(user: schemas.UserCreate, db:Session = Depends(get_db)):
+    existing = crud.get_user_from_username(db=db, username=user.username)
+    if existing:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User already exists"
+        )
+    try:
+        db_user = crud.create_user(db, user)
+    except IntegrityError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Username already registered"
+        )
+    
+    return db_user
+
 @authRouter.post(
     "/token/",
     status_code=status.HTTP_200_OK,
