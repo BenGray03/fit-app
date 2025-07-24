@@ -8,7 +8,7 @@ from ..database import get_db
 from ipaddress import ip_address
 
 
-
+#Authentication Router - any login or signup or anything that may need some technical anaylsis
 authRouter = APIRouter(prefix="/auth", tags=["auth"]) 
 
 #Might have to make sure that it is secure to sql injection
@@ -17,7 +17,7 @@ authRouter = APIRouter(prefix="/auth", tags=["auth"])
     status_code=status.HTTP_200_OK,
     summary="Login as user, returns a JWT Token"
 )
-def login(username: str, password: str, ip_as_str: str, db:Session = Depends(get_db)):
+def login(login_data: OAuth2PasswordRequestForm = Depends(), ip_as_str: str="", db:Session = Depends(get_db)):
     try:
         ip = ip_address(ip_as_str)
     except ValueError:
@@ -28,7 +28,7 @@ def login(username: str, password: str, ip_as_str: str, db:Session = Depends(get
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Too many attempts in the last 15 minutes! Please try again later."
         )
-    user = crud.authenticate_user(db=db, username=username, password=password)
+    user = crud.authenticate_user(db=db, username=login_data.username, password=login_data.password)
     if user:
         access_token = utils.create_access_token({"sub": str(user.id)})
         return {"access_token": access_token, "token_type": "bearer"}
