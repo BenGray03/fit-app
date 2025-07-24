@@ -28,10 +28,10 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
 def create_access_token(data: dict) -> str:
-    to_encode = dict.copy()
+    to_encode = dict.copy(data)
     time_at_now = datetime.now()
-    expiry = time_at_now + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode.update({"exp" : expiry, "issued": time_at_now})
+    expiry = int((time_at_now + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)).timestamp())
+    to_encode.update({"exp" : expiry, "issued": int(time_at_now.timestamp())})
     encoded_jwt = encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
     
@@ -61,7 +61,8 @@ def get_attempt(ip)-> Attempt:
 def update_attempts():
     to_remove = []
     for attempt in login_attempts:
-        if timedelta.now() - attempt.first_attempt < timedelta(minutes=15):
+        print(attempt)
+        if datetime.now() - attempt.first_attempt < timedelta(minutes=15):
             to_remove.append(attempt)
     
     for removed in to_remove:
