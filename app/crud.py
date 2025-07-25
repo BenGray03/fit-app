@@ -35,6 +35,10 @@ def authenticate_user(db :Session, username: str, password: str):
     else:
         return None
 
+def get_user_from_id(db:Session, id:int):
+    user = db.query(models.User).filter(models.User.id == id).first()
+    return user
+
 def get_user_from_username(db: Session, username: str):
     user = db.query(models.User).filter(models.User.username == username).first()
     return user
