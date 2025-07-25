@@ -1,6 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from .. import crud, schemas
-from ..database import get_db
+from fastapi import APIRouter
 
 router = APIRouter(prefix="")
 
