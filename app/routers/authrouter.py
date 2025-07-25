@@ -10,7 +10,7 @@ from .. import exceptions
 
 
 
-#Authentication Router - any login or signup or anything that may need some technical anaylsis
+#Authentication Router - any login or signup or anything that may need some technical anaylsis...
 authRouter = APIRouter(prefix="/auth", tags=["auth"]) 
 
 #Might have to make sure that it is secure to sql injection
