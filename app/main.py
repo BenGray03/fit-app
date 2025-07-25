@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends
+from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
 from . import models, schemas, crud
@@ -8,6 +9,7 @@ from .routers.authrouter import authRouter
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login/")
 app.include_router(authRouter)
 app.include_router(router)
 
