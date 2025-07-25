@@ -58,23 +58,24 @@ def get_bodyweight_history(db: Session, user_id: int, skip: int = 0, limit:int =
            .order_by(models.BodyweightHistory.date.desc())
            .offset(skip)
            .limit(limit)
-           .all
+           .all()
            )
 
 def get_latest_bodyweight(db: Session, user_id: int):
     entry: models.BodyweightHistory = db.query(models.BodyweightHistory)\
-           .filter(models.BodyweightHistory.id == user_id)\
+           .filter(models.BodyweightHistory.user_id == user_id)\
            .order_by(models.BodyweightHistory.date.desc())\
-           .first
+           .first()
     return entry.weight if entry else 0
 
 #doesnt get todays nutrition just the latest
 def get_todays_nutrition(db: Session, user_id: int):
     entry: models.DailyNutrition = db.query(models.DailyNutrition)\
-            .filter(models.DailyNutrition.id == user_id)\
+            .filter(models.DailyNutrition.user_id == user_id)\
             .order_by(models.DailyNutrition.date.desc())\
-            .first
-    return entry.protein, entry.calories if entry else 0, 0
+            .first()
+    return (entry.protein, entry.calories) if entry else (0, 0)
+
 
 def get_bodyweight(db: Session, bodyweight_ID: int):
     return (
