@@ -1,7 +1,7 @@
-from fastapi import FastAPI, Depends, status, HTTPException
+from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
 
-from . import models, schemas, crud, utils
+from . import models, schemas, crud
 from .database import engine, get_db
 from .routers.routers import router
 from .routers.authrouter import authRouter
