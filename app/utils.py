@@ -1,15 +1,24 @@
 from datetime import timedelta, datetime
+from fastapi import Depends
+from fastapi.security import OAuth2PasswordBearer
+import jwt
 import openai
 from passlib.context import CryptContext
+from sqlalchemy.orm import Session
+
+from app.database import get_db
 from .config import settings
-from jwt import encode
+from jwt import PyJWTError, encode
 from .schemas import Attempt
+from . import crud, exceptions
 
 login_attempts = []
 
 openai.api_key = settings.OPEN_AI_KEY
 
 pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 def get_chatgpt_response(user_prompt: str):
     response = openai.ChatCompletion.create(
@@ -26,6 +35,22 @@ def hash_password(password: str) -> str:
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
+
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        user_id = payload.get("sub")
+        if user_id is None:
+            raise exceptions.invalid_credentials
+    except PyJWTError:
+        raise exceptions.invalid_credentials
+    
+    user = crud.get_user_from_id(db, user_id)
+    
+    if user is None:
+        raise exceptions.invalid_credentials
+
+    return user
 
 def create_access_token(data: dict) -> str:
     to_encode = dict.copy(data)
