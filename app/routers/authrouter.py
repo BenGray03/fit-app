@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, Request, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
@@ -6,6 +6,8 @@ from fastapi import APIRouter
 from app import crud, schemas, utils
 from ..database import get_db
 from ipaddress import ip_address
+from .. import exceptions
+
 
 
 #Authentication Router - any login or signup or anything that may need some technical anaylsis
@@ -17,24 +19,20 @@ authRouter = APIRouter(prefix="/auth", tags=["auth"])
     status_code=status.HTTP_200_OK,
     summary="Login as user, returns a JWT Token"
 )
-def login(login_data: OAuth2PasswordRequestForm = Depends(), ip_as_str: str="", db:Session = Depends(get_db)):
+def login(login_data: OAuth2PasswordRequestForm = Depends(), request :Request = None, db:Session = Depends(get_db)):
     try:
-        ip = ip_address(ip_as_str)
+        ip = ip_address(request.client.host)
     except ValueError:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid IP Address Format")
+        raise exceptions.bad_IP_format
     
     if utils.check_ip_blocked(ip):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Too many attempts in the last 15 minutes! Please try again later."
-        )
+        raise exceptions.too_many_attempts
+    
     user = crud.authenticate_user(db=db, username=login_data.username, password=login_data.password)
+
     if not user:
         utils.add_attempt(ip)
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invlaid login information"
-        )
+        raise exceptions.invalid_credentials
     #successful user login
     access_token = utils.create_access_token({"sub": str(user.id)})
     return {"access_token": access_token, "token_type": "bearer"}
@@ -48,17 +46,11 @@ def login(login_data: OAuth2PasswordRequestForm = Depends(), ip_as_str: str="", 
 def signup(user: schemas.UserCreate, db:Session = Depends(get_db)):
     existing = crud.get_user_from_username(db=db, username=user.username)
     if existing:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="User already exists"
-        )
+        raise exceptions.user_exists
     try:
         db_user = crud.create_user(db, user)
     except IntegrityError:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Username already registered"
-        )
+        raise exceptions.username_taken
     
     return db_user
 
