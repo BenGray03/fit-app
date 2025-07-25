@@ -39,6 +39,13 @@ class UserOut(BaseModel):
     class Config:
         from_attributes = True
 
+class UserStats(BaseModel):
+    username: str
+    latest_bodyweight: float | None
+    total_exercises: int
+    today_calories: int
+    today_protein: int
+
 class CreateExercise(BaseModel):
     id: int
     user_id: int
