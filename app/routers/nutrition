@@ -1,0 +1,33 @@
+from fastapi import APIRouter, Depends
+
+from sqlalchemy.orm import Session
+from app.database import get_db
+from app.utils import get_current_user
+
+from .. import schemas, crud
+
+nutritionRouter = APIRouter(prefix="/nutrition")
+
+@nutritionRouter.get(
+    "/today/"
+)
+def get_todays_goals():
+    pass
+
+@nutritionRouter.get(
+    "/history?days=7"
+)
+def get_prev_days():
+    pass
+
+@nutritionRouter.post(
+
+)
+def update_nutrition():
+    pass
+
+@nutritionRouter.patch(
+    "/goals/"
+)
+def update_goals():
+    pass
