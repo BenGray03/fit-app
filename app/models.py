@@ -16,10 +16,9 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, index=True, nullable=False)
+    name = Column(String, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
-    current_bodyweight = Column(Float, nullable=True)
-    protein_goal = Column(Integer, nullable=True)
-    calorie_goal = Column(Integer, nullable=True)
+
 
 class BodyweightHistory(Base):
     __tablename__ = "bodyweight_history"
@@ -46,5 +45,18 @@ class DailyNutrition(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     date = Column(DateTime, default=datetime.now)
+
     calories = Column(Integer, nullable=True)
     protein = Column(Integer, nullable=True)
+
+    calorie_goal = Column(Integer, nullable=True)
+    protein_goal = Column(Integer, nullable=True)
+
+class ProgressPhoto(Base):
+    __tablename__ = "progress_photos"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    date = Column(DateTime)
+    image_url = Column(String, nullable=False)
+    note = Column(String, nullable=True)

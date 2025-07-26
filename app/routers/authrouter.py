@@ -39,7 +39,7 @@ def login(login_data: OAuth2PasswordRequestForm = Depends(), request :Request = 
     
 @authRouter.post(
     "/signup/",
-    response_model=schemas.User,
+    response_model=schemas.UserOut,
     status_code=status.HTTP_201_CREATED,
     summary="Create new user."
 )

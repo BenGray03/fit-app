@@ -15,10 +15,8 @@ def create_user(db: Session, user = schemas.UserCreate):
     hashed = hash_password(user.password)
     db_input = models.User(
         username=user.username,
-        hashed_password = hashed, 
-        current_bodyweight = user.current_bodyweight,
-        protein_goal = user.protein_goal,
-        calorie_goal = user.calorie_goal
+        hashed_password = hashed,
+        name=user.name
         )
     db.add(db_input)
     db.commit()

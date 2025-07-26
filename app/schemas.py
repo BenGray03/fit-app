@@ -18,9 +18,8 @@ class UserInput(BaseModel):
 class UserCreate(BaseModel):
     username: str
     password: str
-    current_bodyweight: float | None = None
-    protein_goal: int | None = None
-    calorie_goal: int | None = None
+    name:str
+
 
 class User(BaseModel):
     id: int
@@ -35,7 +34,7 @@ class User(BaseModel):
 class UserOut(BaseModel):
     id:int
     username:str
-
+    name:str
     class Config:
         from_attributes = True
 
