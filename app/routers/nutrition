@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from fastapi import APIRouter, Depends
 
 from sqlalchemy.orm import Session
@@ -8,26 +9,27 @@ from .. import schemas, crud
 
 nutritionRouter = APIRouter(prefix="/nutrition")
 
+#not secure might need to take a token
 @nutritionRouter.get(
     "/today/"
 )
-def get_todays_goals():
-    pass
+def get_todays_goals(user_id: int,date: datetime, db: Session = Depends(get_db)):
+    return crud.get_specific_nutrition(db, user_id, date)
 
 @nutritionRouter.get(
-    "/history?days=7"
+    "/history"
 )
-def get_prev_days():
-    pass
+def get_prev_days(start_date: datetime, days: int = 7,db: Session = Depends(get_db)):
+    cuttoff_date = start_date - timedelta(days)
 
 @nutritionRouter.post(
 
 )
-def update_nutrition():
+def update_nutrition(db: Session = Depends(get_db)):
     pass
 
 @nutritionRouter.patch(
     "/goals/"
 )
-def update_goals():
+def update_goals(db: Session = Depends(get_db)):
     pass
