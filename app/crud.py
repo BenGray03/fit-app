@@ -88,8 +88,8 @@ def get_range_nutrition(db: Session, user_id: int, start: datetime, end: datetim
 
     entries = (db.query(models.DailyNutrition)\
             .filter(and_(models.DailyNutrition.user_id == user_id,
-                        models.DailyNutrition.date >= start_as_datetime,
-                        models.DailyNutrition.date <= end_as_datetime,))\
+                        models.DailyNutrition.date >= start,
+                        models.DailyNutrition.date <= end,))\
             .order_by(models.DailyNutrition.date.asc())\
             .all())
     return entries
