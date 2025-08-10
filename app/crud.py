@@ -1,4 +1,4 @@
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timedelta
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
 from . import models, schemas
@@ -67,9 +67,9 @@ def get_latest_bodyweight(db: Session, user_id: int):
            .first()
     return entry.weight if entry else 0
 
-def get_specific_nutrition(db: Session, user_id: int, date: date):
-    start = datetime.combine(date, time.min)
-    end = datetime.combine(date, time.max)
+def get_specific_nutrition(db: Session, user_id: int, date: datetime):
+    start = datetime(date.year, date.month, date.day)
+    end = start + timedelta(days=1)
 
     entry: models.DailyNutrition = db.query(models.DailyNutrition)\
             .filter(and_(models.DailyNutrition.user_id == user_id,
@@ -84,9 +84,8 @@ def get_specific_nutrition(db: Session, user_id: int, date: date):
         "Calorie_Goal": entry.calorie_goal if entry else 0
     }
 
-def get_range_nutrition(db: Session, user_id: int, start: date, end: date) :
-    start_as_datetime = datetime.combine(start, time.min)
-    end_as_datetime = datetime.combine(end, time.max)
+def get_range_nutrition(db: Session, user_id: int, start: datetime, end: datetime) :
+
     entries = (db.query(models.DailyNutrition)\
             .filter(and_(models.DailyNutrition.user_id == user_id,
                         models.DailyNutrition.date >= start_as_datetime,
