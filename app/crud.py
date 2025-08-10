@@ -1,5 +1,6 @@
-from datetime import datetime
+from datetime import date, datetime, time
 from sqlalchemy.orm import Session
+from sqlalchemy import and_
 from . import models, schemas
 from .utils import hash_password, verify_password
 
@@ -66,13 +67,33 @@ def get_latest_bodyweight(db: Session, user_id: int):
            .first()
     return entry.weight if entry else 0
 
-#doesnt get todays nutrition just the latest
-def get_todays_nutrition(db: Session, user_id: int):
+def get_specific_nutrition(db: Session, user_id: int, date: date):
+    start = datetime.combine(date, time.min)
+    end = datetime.combine(date, time.max)
+
     entry: models.DailyNutrition = db.query(models.DailyNutrition)\
-            .filter(models.DailyNutrition.user_id == user_id)\
+            .filter(and_(models.DailyNutrition.user_id == user_id,
+                         models.DailyNutrition.date >= start,
+                         models.DailyNutrition.date <= end))\
             .order_by(models.DailyNutrition.date.desc())\
             .first()
-    return (entry.protein, entry.calories) if entry else (0, 0)
+    return {
+        "Protein_Progress": entry.protein if entry else 0,
+        "Protein_Goal": entry.protein_goal if entry else 0,
+        "Calorie_Progress": entry.calories if entry else 0,
+        "Calorie_Goal": entry.calorie_goal if entry else 0
+    }
+
+def get_range_nutrition(db: Session, user_id: int, start: date, end: date) :
+    start_as_datetime = datetime.combine(start, time.min)
+    end_as_datetime = datetime.combine(end, time.max)
+    entries = (db.query(models.DailyNutrition)\
+            .filter(and_(models.DailyNutrition.user_id == user_id,
+                        models.DailyNutrition.date >= start_as_datetime,
+                        models.DailyNutrition.date <= end_as_datetime,))\
+            .order_by(models.DailyNutrition.date.asc())\
+            .all())
+    return entries
 
 
 def get_bodyweight(db: Session, bodyweight_ID: int):
