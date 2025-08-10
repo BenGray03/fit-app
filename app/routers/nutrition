@@ -19,8 +19,9 @@ def get_todays_goals(user_id: int,date: datetime, db: Session = Depends(get_db))
 @nutritionRouter.get(
     "/history"
 )
-def get_prev_days(start_date: datetime, days: int = 7,db: Session = Depends(get_db)):
+def get_prev_days(start_date: datetime, user_id: int, days: int = 7,db: Session = Depends(get_db)):
     cuttoff_date = start_date - timedelta(days)
+    return crud.get_range_nutrition(db, user_id, start_date, cuttoff_date)
 
 @nutritionRouter.post(
 
