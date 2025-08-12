@@ -1,4 +1,5 @@
-from pydantic import BaseModel
+from typing import Optional
+from pydantic import BaseModel, Field
 from datetime import datetime
 import ipaddress
 
@@ -44,6 +45,12 @@ class UserStats(BaseModel):
     today_calories: int
     today_protein: int
 
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+
 class CreateExercise(BaseModel):
     id: int
     user_id: int
@@ -65,9 +72,6 @@ class Exercise(BaseModel):
     class Config:
         from_attributes = True
 
-class Token(BaseModel):
-    access_token: str
-    token_type: str
 
 class BodyweightBase(BaseModel):
     weight: float
@@ -79,6 +83,24 @@ class Bodyweight(BodyweightBase):
     id: int
     user_id: int
     date: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class NutritionGoalsPatch(BaseModel):
+    date: Optional[datetime] = Field(None, description="Defaults to today's date (UTC).")
+    calorie_goal: Optional[int] = Field(None, ge=0, le=20000)
+    protein_goal: Optional[int] = Field(None, ge=0, le=1000)
+
+class DailyNutritionOut(BaseModel):
+    id:int
+    user_id: int
+    date: datetime
+    calories:int
+    protien: int
+    calorie_goal: int
+    protein_goal:int
 
     class Config:
         from_attributes = True
