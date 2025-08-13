@@ -1,4 +1,5 @@
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
+from typing import List
 from fastapi import APIRouter, Depends, Query
 
 from sqlalchemy.orm import Session
@@ -7,7 +8,7 @@ from app.utils import get_current_user
 
 from .. import crud, models, schemas, exceptions
 
-nutritionRouter = APIRouter(prefix="/nutrition")
+nutritionRouter = APIRouter(prefix="/nutrition", tags=["nutrition"])
 
 @nutritionRouter.get(
     "/today/",
@@ -20,12 +21,13 @@ def get_todays_nutrition(date: date, db: Session = Depends(get_db), current_user
 
 @nutritionRouter.get(
     "/history",
+    response_model=List[schemas.DailyNutritionOut],
     summary="get previous days goal progress"
 )
 def get_prev_days(start_date: date, days: int = Query(7, ge=1, le=365),db: Session = Depends(get_db), current_user:models.User = Depends(get_current_user)):
     cuttoff_date = start_date - timedelta(days=days)
 
-    return crud.get_range_nutrition(db, current_user.id, start_date, cuttoff_date)
+    return List(crud.get_range_nutrition(db, current_user.id, start_date, cuttoff_date))
 
 
 @nutritionRouter.patch(
