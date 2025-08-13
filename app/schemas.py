@@ -98,9 +98,9 @@ class NutritionGoalsPatch(BaseModel):
 class DailyNutritionOut(BaseModel):
     id:int
     user_id: int
-    date_out: date
+    date: date
     calories:int
-    protien: int
+    protein: int
     calorie_goal: int
     protein_goal:int
 

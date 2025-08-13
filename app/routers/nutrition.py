@@ -23,7 +23,8 @@ def get_todays_nutrition(date: date, db: Session = Depends(get_db), current_user
     summary="get previous days goal progress"
 )
 def get_prev_days(start_date: date, days: int = Query(7, ge=1, le=365),db: Session = Depends(get_db), current_user:models.User = Depends(get_current_user)):
-    cuttoff_date = start_date - days
+    cuttoff_date = start_date - timedelta(days=days)
+
     return crud.get_range_nutrition(db, current_user.id, start_date, cuttoff_date)
 
 

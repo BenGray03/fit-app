@@ -1,4 +1,5 @@
 from datetime import date, datetime, time, timedelta
+from typing import Optional
 from sqlalchemy.orm import Session 
 from sqlalchemy import and_
 
@@ -114,7 +115,7 @@ def get_specific_nutrition(db: Session, user_id: int, date: date)-> models.Daily
         #get last goals
         calorie_goal, protein_goal = get_prev_goals(db=db, user_id=user_id, date=date)
         #create new entry
-        return init_nutrition_day(db=db, user_id=user_id, date=date, calories=0, calorie_goal=calorie_goal, protein=0, protein_goal=protein_goal)
+        return init_nutrition_day(db=db, user_id=user_id, day=date, calories=0, calorie_goal=calorie_goal, protein=0, protein_goal=protein_goal)
     else:
         return entry
 
@@ -123,8 +124,8 @@ def get_range_nutrition(db: Session, user_id: int, start: date, end: date) :
 
     entries = (db.query(models.DailyNutrition)\
             .filter(and_(models.DailyNutrition.user_id == user_id,
-                        models.DailyNutrition.date >= start,
-                        models.DailyNutrition.date <= end,))\
+                        models.DailyNutrition.date <= start,
+                        models.DailyNutrition.date >= end))\
             .order_by(models.DailyNutrition.date.asc())\
             .all())
     return entries
@@ -135,7 +136,10 @@ def get_prev_goals(db: Session, user_id: int, date: date):
                          models.DailyNutrition.date <= date))\
             .order_by(models.DailyNutrition.date.desc())\
             .first()
-    return entry.calorie_goal, entry.protein_goal
+    if entry: 
+        return entry.calorie_goal, entry.protein_goal
+    else: 
+        return 0,0
 
 def init_nutrition_day(db: Session, user_id:int, day: date, calories: int,calorie_goal: int,protein:int, protein_goal:int) -> models.DailyNutrition:
     entry = models.DailyNutrition(
@@ -154,7 +158,16 @@ def init_nutrition_day(db: Session, user_id:int, day: date, calories: int,calori
 
 
 def update_nutrition_entry(db: Session, user_id:int, day: date, calories:int, calorie_goal: int,protein: int, protein_goal:int)-> models.DailyNutrition:
-    entry:models.DailyNutrition = db.query(models.DailyNutrition).filter(and_(models.DailyNutrition.user_id==user_id, models.DailyNutrition.date==day))
+    entry: Optional[models.DailyNutrition] = (
+        db.query(models.DailyNutrition)
+          .filter(
+              and_(
+                  models.DailyNutrition.user_id == user_id,
+                  models.DailyNutrition.date == day,
+              )
+          )
+          .one_or_none()
+    )
 
     if entry is None:
         entry = init_nutrition_day(db=db, day=day,calories=calories, calorie_goal=calorie_goal, protein=protein,protein_goal=protein_goal)
@@ -174,4 +187,4 @@ def update_nutrition_entry(db: Session, user_id:int, day: date, calories:int, ca
     return entry
 
 def to_schema(model_obj, schema_cls):
-    return schema_cls.model_validate(model_obj)
+    return schema_cls.model_validate(model_obj, from_attributes=True)
