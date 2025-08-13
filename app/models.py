@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, Float, String, DateTime, ForeignKey
+from sqlalchemy import Column, Date, Integer, Float, String, DateTime, ForeignKey
 from .database import Base
 from datetime import datetime
 
@@ -10,11 +10,10 @@ class UserInput(Base):
     input_text = Column(String)
     created_at = Column(DateTime, default=datetime.now)
 
-#User table has ID, USERNAME, HASHED_PASSWORD, CURRENT_BODYWEIGHT, PROTEIN_GOAL and CALORIE_GOAL
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     username = Column(String, unique=True, index=True, nullable=False)
     name = Column(String, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
@@ -31,7 +30,7 @@ class BodyweightHistory(Base):
 class Exercise(Base):
     __tablename__ = "exercises"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     name = Column(String, nullable=True)
     sets = Column(Integer, nullable=True)
@@ -42,9 +41,9 @@ class Exercise(Base):
 class DailyNutrition(Base):
     __tablename__ = "daily_nutrition"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    date = Column(DateTime, default=datetime.now)
+    date = Column(Date, default=datetime.now().date())
 
     calories = Column(Integer, nullable=True)
     protein = Column(Integer, nullable=True)
