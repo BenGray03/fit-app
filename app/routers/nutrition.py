@@ -11,10 +11,12 @@ nutritionRouter = APIRouter(prefix="/nutrition")
 
 @nutritionRouter.get(
     "/today/",
+    response_model=schemas.DailyNutritionOut,
     summary="Get todays goals and goal progress"
 )
-def get_todays_goals(date: date, db: Session = Depends(get_db), current_user:models.User = Depends(get_current_user)):
-    return crud.get_specific_nutrition(db, current_user.id, date)
+def get_todays_nutrition(date: date, db: Session = Depends(get_db), current_user:models.User = Depends(get_current_user)):
+    todays_goals = crud.get_specific_nutrition(db, current_user.id, date)
+    return crud.to_schema(todays_goals, schemas.DailyNutritionOut)
 
 @nutritionRouter.get(
     "/history",
