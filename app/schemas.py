@@ -1,6 +1,6 @@
 from typing import Optional
 from pydantic import BaseModel, Field
-from datetime import datetime
+from datetime import datetime, date
 import ipaddress
 
 class UserInputCreate(BaseModel):
@@ -89,14 +89,16 @@ class Bodyweight(BodyweightBase):
 
 
 class NutritionGoalsPatch(BaseModel):
-    date: Optional[datetime] = Field(None, description="Defaults to today's date (UTC).")
+    date_patch: date = Field(None, description="Defaults to today's date (UTC).")
+    calories: Optional[int] = Field(None, ge=0, le=20000)
     calorie_goal: Optional[int] = Field(None, ge=0, le=20000)
+    protein: Optional[int] = Field(None, ge=0, le=1000)
     protein_goal: Optional[int] = Field(None, ge=0, le=1000)
 
 class DailyNutritionOut(BaseModel):
     id:int
     user_id: int
-    date: datetime
+    date_out: date
     calories:int
     protien: int
     calorie_goal: int
