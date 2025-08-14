@@ -31,3 +31,8 @@ no_goals_in_payload = HTTPException(
     status_code=status.HTTP_400_BAD_REQUEST,
     detail="No Calorie goal or Protein goal provided."
 )
+
+not_updated = HTTPException(
+    status_code=status.HTTP_404_NOT_FOUND,
+    detail="exercise not found"
+)
