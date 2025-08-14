@@ -49,11 +49,7 @@ class Token(BaseModel):
     access_token: str
     token_type: str
 
-
-
 class CreateExercise(BaseModel):
-    id: int
-    user_id: int
     name: str
     sets: int
     reps: int
