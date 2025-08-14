@@ -49,6 +49,13 @@ class Token(BaseModel):
     access_token: str
     token_type: str
 
+class ExerciseUpdate(BaseModel):
+    name: Optional[str] = None
+    sets: Optional[int] = None
+    reps: Optional[int] = None
+    pb: Optional[float] = None
+    weight: Optional[float] = None
+
 class CreateExercise(BaseModel):
     name: str
     sets: int
