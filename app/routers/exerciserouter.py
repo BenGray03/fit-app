@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 
 from sqlalchemy.orm import Session
 from app.database import get_db
@@ -6,7 +6,7 @@ from app.utils import get_current_user
 
 from .. import models
 
-exerciseRouter = APIRouter(prefix="/exercise", tags=["exercise"])
+exerciseRouter = APIRouter(prefix="/exercises", tags=["exercise"])
 
 @exerciseRouter.get(
     "/exercises",
@@ -27,4 +27,12 @@ def add_exercises(db: Session = Depends(get_db), current_user: models.User = Dep
     summary="edit exercies"
 )
 def edit_exercises(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    pass
+
+@exerciseRouter.delete(
+    "/{exercise_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="delete exercises"
+)
+def delete_exercise(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     pass
