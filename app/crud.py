@@ -47,14 +47,44 @@ def get_user_from_username(db: Session, username: str):
 
 
 # Exercise Functions
-def create_exercise(db: Session, exercise = schemas.CreateExercise):
-    db_input = models.Exercise(**exercise.model_dump())
-    db.add(db_input)
+def create_exercise(db: Session, user_id: int, exercise: schemas.CreateExercise):
+    exercise_data = exercise.model_dump()
+    entry = models.Exercise(user_id=user_id, **exercise_data)
+    db.add(entry)
     db.commit()
-    db.refresh(db_input)
-    return db_input
+    db.refresh(entry)
+    return entry
 
+def get_exercise(db: Session, exercise_id: int) -> models.Exercise:
+    entry = db.query(models.Exercise).get(exercise_id)
+    if not entry:
+        return None
+    else:
+        return entry
 
+def update_exercise(db: Session, exercise_id: int, updated: schemas.CreateExercise):
+    exercise_entry: models.Exercise = get_exercise(db, exercise_id)
+    updated_data = updated.model_dump(exclude_unset=True,exclude_none=True)
+    for key in {"name","sets", "reps", "pb", "weight"} & updated_data.keys():
+        setattr(exercise_entry, key, updated_data[key])
+
+    db.commit()
+    db.refresh(exercise_entry)
+    return exercise_entry
+
+def delete_exercise(db: Session, exercise_id: int):
+    entry = db.query(models.Exercise).get(exercise_id)
+    if not entry:
+        return None
+    db.delete(entry)
+    db.commit()
+    return entry
+
+def get_users_exercises(db: Session, user_id: int)-> list[models.Exercise]:
+    return db.query(models.Exercise)\
+        .filter(models.Exercise.user_id == user_id)\
+        .order_by(models.Exercise.name.asc())\
+        .all()
 
 
 #Bodyweight functions
@@ -102,7 +132,6 @@ def delete_bodyweight(db: Session, entry_id: int):
 
 
 #Nutrition functions
-#make is so that is there is none found we init a new entry with days stuff set to 0 and the goals set to the last times 
 def get_specific_nutrition(db: Session, user_id: int, date: date)-> models.DailyNutrition:
 
     entry: models.DailyNutrition = db.query(models.DailyNutrition)\
