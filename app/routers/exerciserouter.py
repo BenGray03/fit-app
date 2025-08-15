@@ -39,4 +39,4 @@ def edit_exercises(updated: schemas.ExerciseUpdate, db: Session = Depends(get_db
     summary="delete exercises"
 )
 def delete_exercise(exercise_id:int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
-    crud.delete_exercise(db, current_user.id)
+    crud.delete_exercise(db, exercise_id)
