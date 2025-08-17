@@ -7,6 +7,7 @@ from .database import engine, get_db
 from .routers.routers import router
 from .routers.authrouter import authRouter
 from .routers.nutrition import nutritionRouter
+from .routers.exerciserouter import exerciseRouter
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
@@ -14,6 +15,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login/")
 app.include_router(authRouter)
 app.include_router(router)
 app.include_router(nutritionRouter)
+app.include_router(exerciseRouter)
 
 @app.post("/input/", response_model=schemas.UserInputCreate)
 def create_input(user_input: schemas.UserInputCreate, db: Session = Depends(get_db)):
