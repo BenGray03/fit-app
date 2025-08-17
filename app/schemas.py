@@ -85,7 +85,7 @@ class BodyweightCreate(BodyweightBase):
 class Bodyweight(BodyweightBase):
     id: int
     user_id: int
-    date: datetime
+    date: date
 
     class Config:
         from_attributes = True
