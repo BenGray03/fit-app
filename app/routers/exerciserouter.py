@@ -10,7 +10,7 @@ exerciseRouter = APIRouter(prefix="/exercises", tags=["exercise"])
 
 @exerciseRouter.get(
     "/exercises",
-    response_model=list[models.Exercise],
+    response_model=list[schemas.Exercise],
     summary="Get a list of the users exercises"
 )
 def get_exercises(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
@@ -20,7 +20,7 @@ def get_exercises(db: Session = Depends(get_db), current_user: models.User = Dep
     "/add",
     summary="add exercises"
 )
-def add_exercises(exercise = schemas.CreateExercise, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+def add_exercises(exercise: schemas.CreateExercise, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     return crud.create_exercise(db, current_user.id, exercise)
 
 @exerciseRouter.patch(
@@ -39,4 +39,4 @@ def edit_exercises(updated: schemas.ExerciseUpdate, db: Session = Depends(get_db
     summary="delete exercises"
 )
 def delete_exercise(exercise_id:int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
-    crud.delete_exercise(db, exercise_id)
+    crud.delete_exercise(db, exercise_id, current_user.id)
