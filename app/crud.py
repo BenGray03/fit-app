@@ -64,6 +64,8 @@ def get_exercise(db: Session, exercise_id: int) -> models.Exercise:
 
 def update_exercise(db: Session, exercise_id: int, updated: schemas.CreateExercise):
     exercise_entry: models.Exercise = get_exercise(db, exercise_id)
+    if not exercise_entry:
+        return None
     updated_data = updated.model_dump(exclude_unset=True,exclude_none=True)
     for key in {"name","sets", "reps", "pb", "weight"} & updated_data.keys():
         setattr(exercise_entry, key, updated_data[key])
@@ -72,8 +74,8 @@ def update_exercise(db: Session, exercise_id: int, updated: schemas.CreateExerci
     db.refresh(exercise_entry)
     return exercise_entry
 
-def delete_exercise(db: Session, exercise_id: int):
-    entry = db.query(models.Exercise).get(exercise_id)
+def delete_exercise(db: Session, exercise_id: int, user_id: int):
+    entry = db.query(models.Exercise).filter(and_(models.Exercise.id == entry, models.Exercise.user_id == user_id))
     if not entry:
         return None
     db.delete(entry)
@@ -88,7 +90,7 @@ def get_users_exercises(db: Session, user_id: int)-> list[models.Exercise]:
 
 
 #Bodyweight functions
-def get_bodyweight_history(db: Session, user_id: int, skip: int = 0, limit:int = 100):
+def get_bodyweight_history(db: Session, user_id: int, skip: int = 0, limit:int = 100) -> list[models.BodyweightHistory]:
     return(
         db.query(models.BodyweightHistory)
            .filter(models.BodyweightHistory.id == user_id)
@@ -98,7 +100,7 @@ def get_bodyweight_history(db: Session, user_id: int, skip: int = 0, limit:int =
            .all()
            )
 
-def get_latest_bodyweight(db: Session, user_id: int):
+def get_latest_bodyweight(db: Session, user_id: int) -> models.BodyweightHistory:
     entry: models.BodyweightHistory = db.query(models.BodyweightHistory)\
            .filter(models.BodyweightHistory.user_id == user_id)\
            .order_by(models.BodyweightHistory.date.desc())\
@@ -120,8 +122,8 @@ def update_bodyweight(db: Session, entry_id: int, updated: schemas.BodyweightCre
     db.commit()
     db.refresh(entry)
 
-def delete_bodyweight(db: Session, entry_id: int):
-    entry = db.query(models.BodyweightHistory).get(entry_id)
+def delete_bodyweight(db: Session, entry_id: int, user_id:int):
+    entry = db.query(models.BodyweightHistory).filter(and_(models.BodyweightHistory.id == entry, models.BodyweightHistory.user_id == user_id))
     if not entry:
         return None
     db.delete(entry)
