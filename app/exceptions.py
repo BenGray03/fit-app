@@ -36,3 +36,8 @@ not_updated = HTTPException(
     status_code=status.HTTP_404_NOT_FOUND,
     detail="exercise not found"
 )
+
+not_added = HTTPException(
+    status_code=status.HTTP_400_BAD_REQUEST,
+    detail="ERROR: entry not added"
+)
