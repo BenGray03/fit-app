@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from ..utils import get_current_user
-from .. import crud, schemas, models
+from .. import crud, schemas, models, exceptions
 
 bodyweightRouter = APIRouter("/weight", tags=["weight"])
 
@@ -13,7 +13,6 @@ bodyweightRouter = APIRouter("/weight", tags=["weight"])
 )
 def bodyweight_today(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     return crud.get_latest_bodyweight(db, current_user.id)
-
 
 @bodyweightRouter.get(
     "/history",
@@ -32,7 +31,10 @@ def delete_bodyweight(bodyweight_id: int, db: Session = Depends(get_db), current
 
 @bodyweightRouter.post(
     "/add",
+    status_code=status.HTTP_202_ACCEPTED,
     summary="add bodyweight entry"
 )
-def add_bodyweight():
-    pass
+def add_bodyweight(bodyweight_info: schemas.BodyweightCreate, db: Session = Depends(get_db), user: models.User = Depends(get_current_user)):
+    if not crud.add_bodyweight(db, bodyweight_entry= bodyweight_info, user_id=user.id):
+        return exceptions.not_added
+    
