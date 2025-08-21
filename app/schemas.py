@@ -25,9 +25,9 @@ class UserCreate(BaseModel):
 class User(BaseModel):
     id: int
     username: str
-    current_bodyweight: float | None = None
-    protein_goal: int | None = None
-    calorie_goal: int | None = None
+    current_bodyweight: Optional[float] 
+    protein_goal: Optional[int] = None
+    calorie_goal: Optional[int] = None
 
     class Config:
         from_attributes = True
@@ -41,7 +41,7 @@ class UserOut(BaseModel):
 
 class UserStats(BaseModel):
     username: str
-    latest_bodyweight: float | None
+    latest_bodyweight: Optional[float] = None 
     today_calories: int
     today_protein: int
 
@@ -60,8 +60,8 @@ class CreateExercise(BaseModel):
     name: str
     sets: int
     reps: int
-    pb: float | None = None
-    weight: float | None = None
+    pb: Optional[float] = None
+    weight: Optional[float] = None
 
 class Exercise(BaseModel):
     id: int
@@ -69,8 +69,8 @@ class Exercise(BaseModel):
     name: str
     sets: int
     reps: int
-    pb: float | None = None
-    weight: float | None = None
+    pb: Optional[float] = None
+    weight: Optional[float] = None
 
     class Config:
         from_attributes = True
@@ -89,6 +89,11 @@ class Bodyweight(BodyweightBase):
 
     class Config:
         from_attributes = True
+
+
+class ProgressPhotoBase(BaseModel):
+    image_url:str
+    note: Optional[str] = None
 
 
 class NutritionGoalsPatch(BaseModel):
