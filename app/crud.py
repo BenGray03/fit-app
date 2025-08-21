@@ -130,7 +130,13 @@ def delete_bodyweight(db: Session, entry_id: int, user_id:int):
     db.commit()
     return entry
 
-
+def add_bodyweight(db:Session, bodyweight_entry: schemas.BodyweightCreate, user_id: int):
+    bodyweight_data = bodyweight_entry.model_dump()
+    entry = models.BodyweightHistory(user_id=user_id, **bodyweight_data)
+    db.add(entry)
+    db.commit()
+    db.refresh(entry)
+    return entry
 
 
 #Nutrition functions
