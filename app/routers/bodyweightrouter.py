@@ -5,7 +5,7 @@ from app.database import get_db
 from ..utils import get_current_user
 from .. import crud, schemas, models, exceptions
 
-bodyweightRouter = APIRouter("/weight", tags=["weight"])
+bodyweightRouter = APIRouter(prefix="/weight", tags=["weight"])
 
 @bodyweightRouter.get(
     "/today",

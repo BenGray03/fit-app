@@ -123,13 +123,14 @@ def update_bodyweight(db: Session, entry_id: int, updated: schemas.BodyweightCre
     db.refresh(entry)
 
 def delete_bodyweight(db: Session, entry_id: int, user_id:int):
-    entry = db.query(models.BodyweightHistory).filter(and_(models.BodyweightHistory.id == entry, models.BodyweightHistory.user_id == user_id))
+    entry = db.query(models.BodyweightHistory).filter(and_(models.BodyweightHistory.id == entry_id, models.BodyweightHistory.user_id == user_id)).first()
     if not entry:
         return None
     db.delete(entry)
     db.commit()
     return entry
 
+#add bodyweight id or something
 def add_bodyweight(db:Session, bodyweight_entry: schemas.BodyweightCreate, user_id: int):
     bodyweight_data = bodyweight_entry.model_dump()
     entry = models.BodyweightHistory(user_id=user_id, **bodyweight_data)
